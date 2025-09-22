@@ -11,16 +11,30 @@ struct MangaViewerView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(spacing: 16) {
-            AsyncImage(url: URL(string: "https://placehold.jp/800x1200.png")) { image in
-                image
-                    .resizable()
-                    .scaledToFit()
-            } placeholder: {
-                ProgressView()
+        GeometryReader { geometry in
+            ScrollView(.horizontal) {
+                LazyHStack(alignment: .center, spacing: .zero) {
+                    ForEach(Array(0..<10).reversed(), id: \.self) { i in
+                        ZStack(alignment: .bottom) {
+                            AsyncImage(url: URL(string: "https://placehold.jp/800x1200.png")) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            Text("\(i)")
+                                .font(.largeTitle)
+                        }
+                    }
+                    .frame(width: geometry.size.width)
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .defaultScrollAnchor(.trailing)
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
         }
+        .ignoresSafeArea(.all)
     }
 }
 
