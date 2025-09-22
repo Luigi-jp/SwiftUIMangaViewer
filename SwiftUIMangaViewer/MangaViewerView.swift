@@ -17,13 +17,7 @@ struct MangaViewerView: View {
                 ScrollView(.horizontal) {
                     LazyHStack(alignment: .center, spacing: .zero) {
                         ForEach(state.pages.reversed()) { page in
-                            AsyncImage(url: URL(string: page.imageUrl)) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                ProgressView()
-                            }
+                            ViewerPageView(page: page)
                             .gesture (
                                 SpatialTapGesture()
                                     .onEnded { value in
