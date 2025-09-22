@@ -17,7 +17,7 @@ struct TopView: View {
             Text("Viewerを起動")
         }
         .fullScreenCover(isPresented: $isPresentViewer) {
-            MangaViewerView()
+            MangaViewerView(state: MangaViewerViewState())
         }
     }
 }

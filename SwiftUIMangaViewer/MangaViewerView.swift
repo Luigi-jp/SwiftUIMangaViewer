@@ -9,50 +9,60 @@ import SwiftUI
 
 struct MangaViewerView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var currentPage = 0
+    let state: MangaViewerViewState
 
     var body: some View {
         GeometryReader { geometry in
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
                     LazyHStack(alignment: .center, spacing: .zero) {
-                        ForEach(Array(0..<10).reversed(), id: \.self) { i in
-                            ZStack(alignment: .bottom) {
-                                AsyncImage(url: URL(string: "https://placehold.jp/800x1200.png")) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                                Text("\(i)")
-                                    .font(.largeTitle)
+                        ForEach(state.pages.reversed()) { page in
+                            AsyncImage(url: URL(string: page.imageUrl)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            } placeholder: {
+                                ProgressView()
                             }
                             .gesture (
                                 SpatialTapGesture()
                                     .onEnded { value in
                                         if value.location.x < geometry.size.width / 3 {
-                                            currentPage = min(currentPage + 1, 9)
-                                            proxy.scrollTo(currentPage)
+                                            state.nextPage()
                                         } else if value.location.x > (geometry.size.width / 3 * 2) {
-                                            currentPage = max(currentPage - 1, 0)
-                                            proxy.scrollTo(currentPage)
+                                            state.previousPage()
                                         }
                                     }
                             )
                         }
                         .frame(width: geometry.size.width)
                     }
+                    .scrollTargetLayout()
                 }
                 .defaultScrollAnchor(.trailing)
                 .scrollTargetBehavior(.paging)
                 .scrollIndicators(.hidden)
+                .scrollPosition(id: Binding(
+                    get: {
+                        state.currentPage
+                    }, set: { id in
+                        state.updatePageIndex(id: id)
+                    }
+                ))
+            }
+        }
+        .overlay {
+            if state.isLoading {
+                ProgressView()
             }
         }
         .ignoresSafeArea(.all)
+        .task {
+            await state.load()
+        }
     }
 }
 
 #Preview {
-    MangaViewerView()
+    MangaViewerView(state: MangaViewerViewState())
 }
