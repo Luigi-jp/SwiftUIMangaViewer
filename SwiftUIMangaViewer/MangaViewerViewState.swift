@@ -7,6 +7,11 @@
 
 import Observation
 
+enum DisplayMode {
+    case viewer
+    case menu
+}
+
 @Observable class MangaViewerViewState {
     var currentPage: Page.ID? {
         guard !pages.isEmpty else {
@@ -15,9 +20,18 @@ import Observation
         return pages[currentIndex].id
     }
 
+    var isMenuMode: Bool {
+        displayMode == .menu
+    }
+
     private(set) var pages: [Page] = []
+    private(set) var displayMode: DisplayMode = .viewer
     private(set) var isLoading = false
-    private(set) var currentIndex = 0
+    private(set) var currentIndex = 0 {
+        didSet {
+            displayMode = .viewer
+        }
+    }
 
     func load() async {
         isLoading = true
@@ -43,5 +57,9 @@ import Observation
 
     func updatePageIndex(id: Page.ID?) {
         currentIndex = pages.firstIndex(where: { $0.id == id }) ?? 0
+    }
+
+    func toggleDisplayMode() {
+        displayMode = displayMode == .viewer ? .menu : .viewer
     }
 }
