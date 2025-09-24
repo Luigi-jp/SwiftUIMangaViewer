@@ -30,12 +30,34 @@ struct ViewerMenuHeaderView: View {
 }
 
 struct ViewerMenuFooterView: View {
+    @Binding var currentPage: Int
+    var totalPage: Int
+
+    private var sliderValue: Binding<Double> {
+        .init(
+            get: { Double(currentPage) },
+            set: { currentPage = Int($0) },
+        )
+    }
+    private var sliderRange: ClosedRange<Double> {
+        return 0...(max(0, Double(totalPage - 1)))
+    }
+
     var body: some View {
-        HStack {
-            Spacer()
-            // 各種ボタンが入る想定
+        VStack(spacing: 8) {
+            Slider(
+                value: sliderValue,
+                in: sliderRange,
+                step: 1
+            )
+            .rotationEffect(Angle(degrees: 180))
+            HStack {
+                Spacer()
+                // 各種ボタンが入る想定
+            }
         }
         .frame(height: 80)
+        .padding(.horizontal, 20)
         .background(Color.black.opacity(0.9))
     }
 }
@@ -46,7 +68,7 @@ struct ViewerPageIndicatorView: View {
 
     var body: some View {
         VStack {
-            Text(currentPage.description)
+            Text((currentPage + 1).description)
             Rectangle()
                 .frame(width: 50, height: 1)
             Text(totalPage.description)

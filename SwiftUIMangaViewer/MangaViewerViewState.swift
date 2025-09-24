@@ -27,11 +27,7 @@ enum DisplayMode {
     private(set) var pages: [Page] = []
     private(set) var displayMode: DisplayMode = .viewer
     private(set) var isLoading = false
-    private(set) var currentIndex = 0 {
-        didSet {
-            displayMode = .viewer
-        }
-    }
+    private(set) var currentIndex = 0
 
     func load() async {
         isLoading = true
@@ -48,15 +44,32 @@ enum DisplayMode {
     }
 
     func nextPage() {
+        defer {
+            if displayMode == .menu {
+                toggleDisplayMode()
+            }
+        }
         currentIndex = min(currentIndex + 1, pages.count - 1)
     }
 
     func previousPage() {
+        defer {
+            if displayMode == .menu {
+                toggleDisplayMode()
+            }
+        }
         currentIndex = max(currentIndex - 1, 0)
     }
 
     func updatePageIndex(id: Page.ID?) {
         currentIndex = pages.firstIndex(where: { $0.id == id }) ?? 0
+    }
+
+    func updatePageIndex(index: Int) {
+        guard index >= 0, index < pages.count else {
+            fatalError()
+        }
+        currentIndex = index
     }
 
     func toggleDisplayMode() {

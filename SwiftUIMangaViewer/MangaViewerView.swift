@@ -67,7 +67,16 @@ struct MangaViewerView: View {
                 .allowsHitTesting(false)
         }
         .overlay(alignment: .bottom) {
-            ViewerMenuFooterView()
+            ViewerMenuFooterView(
+                currentPage: Binding(
+                    get: {
+                        state.currentIndex
+                    }, set: { value in
+                        state.updatePageIndex(index: value)
+                    }
+                ),
+                totalPage: state.pages.count
+            )
                 .offset(y: state.isMenuMode ? 0 : 100)
                 .opacity(state.isMenuMode ? 1.0 : 0)
                 .animation(.easeOut, value: state.isMenuMode)
